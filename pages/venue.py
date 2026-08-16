@@ -1,11 +1,62 @@
 from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
+
 from data import goal_events, venue_matches
 from theme import *
 from components import card, graph_card, format_fig
 
-venues = sorted(goal_events["Stadium Name"].dropna().unique())
+
+# ============================================================
+# VENUES
+# ============================================================
+
+venues = sorted(
+    goal_events["Stadium Name"]
+    .dropna()
+    .unique()
+)
+
+
+# ============================================================
+# CITY → STATE / PROVINCE
+# ============================================================
+
+CITY_STATE_MAP = {
+    # --------------------------------------------------------
+    # CANADA
+    # --------------------------------------------------------
+    "Toronto": "Ontario",
+    "Vancouver": "British Columbia",
+
+    # --------------------------------------------------------
+    # MEXICO
+    # --------------------------------------------------------
+    "Guadalajara": "Jalisco",
+    "Zapopan": "Jalisco",
+    "Mexico City": "Mexico City",
+    "Monterrey": "Nuevo León",
+
+    # --------------------------------------------------------
+    # UNITED STATES
+    # --------------------------------------------------------
+    "Arlington": "Texas",
+    "Atlanta": "Georgia",
+    "East Rutherford": "New Jersey",
+    "Foxborough": "Massachusetts",
+    "Houston": "Texas",
+    "Inglewood": "California",
+    "Kansas City": "Missouri",
+    "Miami Gardens": "Florida",
+    "Philadelphia": "Pennsylvania",
+    "Santa Clara": "California",
+    "Seattle": "Washington",
+}
+
+
+# ============================================================
+# VENUE LAYOUT
+# ============================================================
 
 venue_layout = html.Div(
     [
@@ -23,6 +74,10 @@ venue_layout = html.Div(
                 "color": MUTED,
             },
         ),
+
+        # ====================================================
+        # VENUE DROPDOWN
+        # ====================================================
 
         dcc.Dropdown(
             id="venue-dropdown",
@@ -48,7 +103,7 @@ venue_layout = html.Div(
         html.Div(
             [
                 card(
-                    "Total Goals Scored",
+                    "Total Goals",
                     value_id="venue-goals",
                 ),
 
@@ -68,13 +123,18 @@ venue_layout = html.Div(
                 ),
 
                 card(
+                    "State / Province",
+                    value_id="venue-state",
+                ),
+
+                card(
                     "City Venue",
                     value_id="venue-city",
                 ),
             ],
             style={
                 "display": "grid",
-                "gridTemplateColumns": "repeat(5, 1fr)",
+                "gridTemplateColumns": "repeat(3, 1fr)",
                 "gap": "14px",
                 "marginBottom": "18px",
             },
@@ -87,7 +147,7 @@ venue_layout = html.Div(
         html.Div(
             [
                 graph_card(
-                    "World Cup Host Venues",
+                    "Host Country",
                     "venue-map",
                     470,
                 ),
@@ -126,6 +186,11 @@ venue_layout = html.Div(
     ]
 )
 
+
+# ============================================================
+# CALLBACKS
+# ============================================================
+
 def register_callbacks(app):
 
     @app.callback(
@@ -133,6 +198,7 @@ def register_callbacks(app):
         Output("venue-games", "children"),
         Output("venue-avg-attendance", "children"),
         Output("venue-country", "children"),
+        Output("venue-state", "children"),
         Output("venue-city", "children"),
         Output("venue-map", "figure"),
         Output("venue-ranking", "figure"),
@@ -163,7 +229,10 @@ def register_callbacks(app):
 
         avg_attendance = vm["Attendance"].mean()
 
-        # Country Venue
+        # --------------------------------------------------------
+        # COUNTRY VENUE
+        # --------------------------------------------------------
+
         if dff["Country Venue"].notna().any():
 
             country_venue = (
@@ -176,7 +245,10 @@ def register_callbacks(app):
 
             country_venue = "—"
 
-        # City Venue
+        # --------------------------------------------------------
+        # CITY VENUE
+        # --------------------------------------------------------
+
         if dff["City Venue"].notna().any():
 
             city_venue = (
@@ -189,71 +261,57 @@ def register_callbacks(app):
 
             city_venue = "—"
 
+        # --------------------------------------------------------
+        # STATE / PROVINCE
+        # --------------------------------------------------------
+
+        state_venue = CITY_STATE_MAP.get(
+            city_venue,
+            "—",
+        )
+
         # ========================================================
-        # VENUE MAP
+        # VENUE COUNTRY MAP
+        # ========================================================
+        #
+        # The selected stadium determines the country displayed.
+        # We intentionally use a country-level choropleth rather
+        # than a city marker because latitude / longitude are not
+        # currently in the dataset.
         # ========================================================
 
-        map_df = (
-            venue_matches.groupby(
-                [
-                    "Country Venue",
-                    "City Venue",
-                    "Stadium Name",
+        selected_map_df = pd.DataFrame(
+            {
+                "Country Venue": [
+                    country_venue
                 ],
-                dropna=False,
-            )
-            .agg(
-                Games=(
-                    "Match ID",
-                    "nunique",
-                ),
-
-                Attendance=(
-                    "Attendance",
-                    "sum",
-                ),
-            )
-            .reset_index()
+                "State Venue": [
+                    state_venue
+                ],
+                "City Venue": [
+                    city_venue
+                ],
+                "Stadium Name": [
+                    selected_venue
+                ],
+                "Goals": [
+                    n_goals
+                ],
+                "Games": [
+                    n_games
+                ],
+                "Average Attendance": [
+                    avg_attendance
+                ],
+            }
         )
 
-        # Goal totals by stadium
-        map_goals = (
-            goal_events.groupby(
-                [
-                    "Country Venue",
-                    "City Venue",
-                    "Stadium Name",
-                ]
-            )
-            .size()
-            .reset_index(
-                name="Goals"
-            )
-        )
-
-        map_df = map_df.merge(
-            map_goals,
-            on=[
-                "Country Venue",
-                "City Venue",
-                "Stadium Name",
-            ],
-            how="left",
-        )
-
-        # Filter map to selected venue
-        selected_map_df = map_df[
-            map_df["Stadium Name"] == selected_venue
-        ].copy()
-
-        fig_map = px.scatter_geo(
+        fig_map = px.choropleth(
             selected_map_df,
 
             locations="Country Venue",
 
             locationmode="country names",
-
-            size="Games",
 
             color="Goals",
 
@@ -261,13 +319,12 @@ def register_callbacks(app):
 
             hover_data={
                 "Country Venue": True,
+                "State Venue": True,
                 "City Venue": True,
-                "Games": True,
                 "Goals": True,
-                "Attendance": True,
+                "Games": True,
+                "Average Attendance": ":,.0f",
             },
-
-            projection="natural earth",
 
             color_continuous_scale=[
                 [0, LIGHT_BLUE],
@@ -276,6 +333,9 @@ def register_callbacks(app):
         )
 
         fig_map.update_geos(
+            fitbounds="locations",
+            visible=True,
+
             showland=True,
             landcolor="#F2F5F8",
 
@@ -285,8 +345,8 @@ def register_callbacks(app):
             showocean=True,
             oceancolor="#EAF3FA",
 
-            # Focus map on selected venue's country
-            fitbounds="locations",
+            showcoastlines=True,
+            coastlinecolor="#CED7E0",
         )
 
         fig_map.update_layout(
@@ -299,9 +359,7 @@ def register_callbacks(app):
                 b=5,
             ),
 
-            coloraxis_colorbar=dict(
-                title="Goals"
-            ),
+            coloraxis_showscale=False,
         )
 
         # ========================================================
@@ -340,6 +398,15 @@ def register_callbacks(app):
 
         fig_rank = format_fig(
             fig_rank
+        )
+
+        fig_rank.update_xaxes(
+            title="Goals",
+            dtick=1,
+        )
+
+        fig_rank.update_yaxes(
+            title="",
         )
 
         # ========================================================
@@ -407,13 +474,15 @@ def register_callbacks(app):
         return (
             f"{n_goals:,}",
             f"{n_games:,}",
-            f"{avg_attendance:,.0f}"
-            if pd.notna(avg_attendance)
-            else "—",
+            (
+                f"{avg_attendance:,.0f}"
+                if pd.notna(avg_attendance)
+                else "—"
+            ),
             country_venue,
+            state_venue,
             city_venue,
             fig_map,
             fig_rank,
             fig_timing,
         )
-
