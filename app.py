@@ -16,15 +16,16 @@ app.title = "World Cup 2026 Goal Analytics"
 app.layout = html.Div(
     [
         sidebar,
-        html.Div(
-            id="page-content",
-            style={
-                "marginLeft": "235px",
-                "padding": "30px",
-                "backgroundColor": OFF_WHITE,
-                "minHeight": "100vh",
-            },
-        ),
+   html.Div(
+    id="page-content",
+    style={
+        "marginLeft": "265px",
+        "padding": "30px",
+        "backgroundColor": OFF_WHITE,
+        "minHeight": "100vh",
+        "boxSizing": "border-box",
+    },
+),
     ],
     style={"fontFamily": "Arial, sans-serif", "backgroundColor": OFF_WHITE},
 )

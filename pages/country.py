@@ -2,12 +2,16 @@ import pandas as pd
 from dash import dcc, html, Input, Output
 import plotly.express as px
 
-from data import goal_events
+from data import goal_events, labels
 from theme import *
 from components import card, graph_card, format_fig, country_flag
 
 
-countries = sorted(goal_events["Player Country"].dropna().unique())
+countries = sorted(
+    goal_events["Player Country"]
+    .dropna()
+    .unique()
+)
 
 
 country_layout = html.Div(
@@ -61,18 +65,22 @@ country_layout = html.Div(
                     "Goals Scored",
                     value_id="country-goals",
                 ),
+
                 card(
                     "Matches With Goals",
                     value_id="country-matches",
                 ),
+
                 card(
                     "Goal Scorers",
                     value_id="country-scorers",
                 ),
+
                 card(
                     "Avg Goal Minute",
                     value_id="country-avg-minute",
                 ),
+
                 card(
                     "Player With Most Goals",
                     value_id="country-top-scorer",
@@ -96,6 +104,7 @@ country_layout = html.Div(
                     "Top Goal Scorers",
                     "country-scorers-chart",
                 ),
+
                 graph_card(
                     "Goals by Match Period",
                     "country-period-chart",
@@ -119,6 +128,7 @@ country_layout = html.Div(
                     "Goal Timeline",
                     "country-timeline",
                 ),
+
                 graph_card(
                     "Goals by Position",
                     "country-position",
@@ -144,6 +154,7 @@ country_layout = html.Div(
                         "color": NAVY,
                     },
                 ),
+
                 html.Div(
                     id="country-fixtures-table",
                 ),
@@ -297,7 +308,9 @@ def register_callbacks(app):
                 dropna=False,
             )
             .size()
-            .reset_index(name="Goals")
+            .reset_index(
+                name="Goals"
+            )
             .sort_values(
                 [
                     "Goals",
@@ -363,7 +376,9 @@ def register_callbacks(app):
                 dropna=False,
             )
             .size()
-            .reset_index(name="Goals")
+            .reset_index(
+                name="Goals"
+            )
             .sort_values(
                 "Goals",
                 ascending=True,

@@ -187,7 +187,7 @@ def country_flag(country):
         "Chad": "🇹🇩",
         "Comoros": "🇰🇲",
         "Congo": "🇨🇬",
-        "DR Congo": "🇨🇩",
+        "Democratic Republic of Congo": "🇨🇩",
         "Djibouti": "🇩🇯",
         "Egypt": "🇪🇬",
         "Equatorial Guinea": "🇬🇶",
@@ -199,7 +199,7 @@ def country_flag(country):
         "Ghana": "🇬🇭",
         "Guinea": "🇬🇳",
         "Guinea-Bissau": "🇬🇼",
-        "Ivory Coast": "🇨🇮",
+        "Côte d'Ivoire": "🇨🇮",
         "Kenya": "🇰🇪",
         "Lesotho": "🇱🇸",
         "Liberia": "🇱🇷",
@@ -314,7 +314,7 @@ def country_flag(country):
         "Cyprus": "🇨🇾",
         "Czech Republic": "🇨🇿",
         "Denmark": "🇩🇰",
-        "England": "🏴",
+        "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
         "Estonia": "🇪🇪",
         "Faroe Islands": "🇫🇴",
         "Finland": "🇫🇮",
@@ -345,14 +345,14 @@ def country_flag(country):
         "Republic of Ireland": "🇮🇪",
         "Romania": "🇷🇴",
         "San Marino": "🇸🇲",
-        "Scotland": "🏴",
+        "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
         "Serbia": "🇷🇸",
         "Slovakia": "🇸🇰",
         "Slovenia": "🇸🇮",
         "Spain": "🇪🇸",
         "Sweden": "🇸🇪",
         "Switzerland": "🇨🇭",
-        "Turkey": "🇹🇷",
+        "Türkiye": "🇹🇷",
         "Ukraine": "🇺🇦",
         "Wales": "🏴",
     }
@@ -392,51 +392,52 @@ sidebar = html.Div(
             },
         ),
 
-        dcc.RadioItems(
-            id="page-selector",
-            options=[
-                {
-                    "label": "  Overview",
-                    "value": "overview",
-                },
-                {
-                    "label": "  Country Profile",
-                    "value": "country",
-                },
-                {
-                    "label": "  Confederation",
-                    "value": "confederation",
-                },
-                {
-                    "label": "  Venue Profile",
-                    "value": "venue",
-                },
-                {
-                    "label": "  Referee Profile",
-                    "value": "referee",
-                },
-                {
-                    "label": "  Goal Insights",
-                    "value": "insights",
-                },
-            ],
-            value="overview",
-            labelStyle={
-                "display": "block",
-                "padding": "12px 10px",
-                "marginBottom": "6px",
-                "cursor": "pointer",
-                "borderRadius": "8px",
-            },
-            inputStyle={
-                "marginRight": "9px",
-            },
-            style={
-                "color": WHITE,
-                "fontSize": "15px",
-                "fontWeight": "600",
-            },
-        ),
+dcc.RadioItems(
+    id="page-selector",
+    options=[
+        {
+            "label": "  Overview",
+            "value": "overview",
+        },
+        {
+            "label": "  Country Profile",
+            "value": "country",
+        },
+        {
+            "label": "  Confederation",
+            "value": "confederation",
+        },
+        {
+            "label": "  Venue Profile",
+            "value": "venue",
+        },
+        {
+            "label": "  Referee Profile",
+            "value": "referee",
+        },
+        {
+            "label": "  Goal Insights",
+            "value": "insights",
+        },
+    ],
+    value="overview",
+    labelStyle={
+        "display": "block",
+        "padding": "12px 10px",
+        "marginBottom": "6px",
+        "cursor": "pointer",
+        "borderRadius": "8px",
+        "color": WHITE,
+    },
+    inputStyle={
+        "marginRight": "9px",
+    },
+    style={
+        "color": WHITE,
+        "fontSize": "15px",
+        "fontWeight": "600",
+    },
+),
 
         html.Div(
             "Vizual Optima",
@@ -449,18 +450,19 @@ sidebar = html.Div(
             },
         ),
     ],
-    style={
-        "position": "fixed",
-        "top": 0,
-        "left": 0,
-        "bottom": 0,
-        "width": "235px",
-        "padding": "28px 22px",
-        "background": (
-            f"linear-gradient(180deg, "
-            f"{NAVY} 0%, "
-            f"{DARK_BLUE} 100%)"
-        ),
-        "zIndex": 10,
-    },
+style={
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "bottom": 0,
+    "width": "265px",
+    "padding": "28px 22px",
+    "boxSizing": "border-box",
+    "background": (
+        f"linear-gradient(180deg, "
+        f"{NAVY} 0%, "
+        f"{DARK_BLUE} 100%)"
+    ),
+    "zIndex": 10,
+},
 )
