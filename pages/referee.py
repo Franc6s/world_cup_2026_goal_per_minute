@@ -27,13 +27,12 @@ referee_layout = html.Div(
             [
                 card("Goals", value_id="ref-goals"),
                 card("Matches Represented", value_id="ref-matches"),
-                card("Goals / Match", value_id="ref-gpm"),
                 card("Penalty Goals", value_id="ref-penalties"),
                 card("Stoppage-Time Goals", value_id="ref-stoppage"),
             ],
             style={
                 "display": "grid",
-                "gridTemplateColumns": "repeat(5, 1fr)",
+                "gridTemplateColumns": "repeat(4, 1fr)",
                 "gap": "14px",
                 "marginBottom": "18px",
             },
@@ -41,8 +40,14 @@ referee_layout = html.Div(
 
         html.Div(
             [
-                graph_card("Goal Minutes in Selected Referee's Matches", "ref-minute-box"),
-                graph_card("Goals by Fixture Stage", "ref-stage-bar"),
+                graph_card(
+                    "Goal Minutes in Selected Referee's Matches",
+                    "ref-minute-box"
+                ),
+                graph_card(
+                    "Goals by Fixture Stage",
+                    "ref-stage-bar"
+                ),
             ],
             style={
                 "display": "grid",
@@ -54,12 +59,11 @@ referee_layout = html.Div(
 )
 
 
-
 def register_callbacks(app):
+
     @app.callback(
         Output("ref-goals", "children"),
         Output("ref-matches", "children"),
-        Output("ref-gpm", "children"),
         Output("ref-penalties", "children"),
         Output("ref-stoppage", "children"),
         Output("ref-minute-box", "figure"),
@@ -67,41 +71,95 @@ def register_callbacks(app):
         Input("referee-dropdown", "value"),
     )
     def update_referee(referee):
-        dff = goal_events[goal_events["Referee Name"] == referee].copy()
+
+        dff = goal_events[
+            goal_events["Referee Name"] == referee
+        ].copy()
 
         goals_count = len(dff)
+
         match_count = dff["Match ID"].nunique()
-        gpm = goals_count / match_count if match_count else 0
+
         penalties = (
-            dff["Penalty"].fillna("No").astype(str).str.lower().eq("yes").sum()
+            dff["Penalty"]
+            .fillna("No")
+            .astype(str)
+            .str.lower()
+            .eq("yes")
+            .sum()
         )
+
         stoppage = (
-            dff["Stoppage Time"].fillna("No").astype(str).str.lower().eq("yes").sum()
+            dff["Stoppage Time"]
+            .fillna("No")
+            .astype(str)
+            .str.lower()
+            .eq("yes")
+            .sum()
         )
+
+        # ========================================================
+        # GOAL MINUTES
+        # ========================================================
 
         fig_box = px.box(
             dff,
             y="Minute Scored",
             points="all",
-            hover_data=["Fixture", "Player First Name", "Player Name", "Player Country"],
+            hover_data=[
+                "Fixture",
+                "Player First Name",
+                "Player Name",
+                "Player Country",
+            ],
         )
-        fig_box.update_traces(marker_color=GOLD, line_color=BLUE)
+
+        fig_box.update_traces(
+            marker_color=GOLD,
+            line_color=BLUE,
+        )
+
         fig_box = format_fig(fig_box)
+
+        # ========================================================
+        # GOALS BY FIXTURE STAGE
+        # ========================================================
 
         stage = (
             dff["Fixture Format"]
             .value_counts()
             .reset_index()
         )
-        stage.columns = ["Fixture Format", "Goals"]
-        fig_stage = px.bar(stage, x="Fixture Format", y="Goals", text="Goals")
-        fig_stage.update_traces(marker_color=BLUE)
+
+        stage.columns = [
+            "Fixture Format",
+            "Goals",
+        ]
+
+        fig_stage = px.bar(
+            stage,
+            x="Fixture Format",
+            y="Goals",
+            text="Goals",
+        )
+
+        fig_stage.update_traces(
+            marker_color=BLUE
+        )
+
         fig_stage = format_fig(fig_stage)
+
+        fig_stage.update_yaxes(
+            dtick=1
+        )
+
+        # ========================================================
+        # RETURN
+        # ========================================================
 
         return (
             f"{goals_count:,}",
             f"{match_count:,}",
-            f"{gpm:.2f}",
             f"{penalties:,}",
             f"{stoppage:,}",
             fig_box,

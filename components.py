@@ -8,17 +8,23 @@ from theme import (
 # ============================================================
 # HELPERS
 # ============================================================
+
+
 def card(title, value_id=None, value=None):
     display_value = value if value is not None else ""
+
     return html.Div(
         [
-            html.Div(title, style={
-                "fontSize": "12px",
-                "fontWeight": "700",
-                "color": MUTED,
-                "textTransform": "uppercase",
-                "letterSpacing": "0.8px",
-            }),
+            html.Div(
+                title,
+                style={
+                    "fontSize": "12px",
+                    "fontWeight": "700",
+                    "color": MUTED,
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.8px",
+                },
+            ),
             html.Div(
                 display_value,
                 id=value_id,
@@ -55,8 +61,12 @@ def graph_card(title, graph_id, height=430):
             ),
             dcc.Graph(
                 id=graph_id,
-                config={"displayModeBar": False},
-                style={"height": f"{height}px"},
+                config={
+                    "displayModeBar": False,
+                },
+                style={
+                    "height": f"{height}px",
+                },
             ),
         ],
         style={
@@ -74,64 +84,341 @@ def format_fig(fig, title=None):
         title=title,
         paper_bgcolor=WHITE,
         plot_bgcolor=WHITE,
-        font=dict(family="Arial, sans-serif", color=TEXT),
-        margin=dict(l=45, r=30, t=55 if title else 35, b=45),
+        font=dict(
+            family="Arial, sans-serif",
+            color=TEXT,
+        ),
+        margin=dict(
+            l=45,
+            r=30,
+            t=55 if title else 35,
+            b=45,
+        ),
         legend_title_text="",
-        hoverlabel=dict(bgcolor=WHITE, font_color=TEXT),
+        hoverlabel=dict(
+            bgcolor=WHITE,
+            font_color=TEXT,
+        ),
     )
-    fig.update_xaxes(showgrid=True, gridcolor="#EDF2F7", zeroline=False)
-    fig.update_yaxes(showgrid=True, gridcolor="#EDF2F7", zeroline=False)
+
+    fig.update_xaxes(
+        showgrid=True,
+        gridcolor="#EDF2F7",
+        zeroline=False,
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#EDF2F7",
+        zeroline=False,
+    )
+
     return fig
 
 
 def country_flag(country):
     # Small emoji helper for common ISO-style country names.
     # If a name isn't found, a globe is displayed.
+
     flags = {
-        "Argentina": "🇦🇷", "Algeria": "🇩🇿", "Australia": "🇦🇺",
-        "Belgium": "🇧🇪", "Brazil": "🇧🇷", "Canada": "🇨🇦",
-        "Colombia": "🇨🇴", "Croatia": "🇭🇷", "Ecuador": "🇪🇨",
-        "England": "🏴", "France": "🇫🇷", "Germany": "🇩🇪",
-        "Ghana": "🇬🇭", "Iran": "🇮🇷", "Italy": "🇮🇹",
-        "Japan": "🇯🇵", "Mexico": "🇲🇽", "Morocco": "🇲🇦",
-        "Netherlands": "🇳🇱", "New Zealand": "🇳🇿", "Nigeria": "🇳🇬",
-        "Portugal": "🇵🇹", "Saudi Arabia": "🇸🇦", "Senegal": "🇸🇳",
-        "South Africa": "🇿🇦", "South Korea": "🇰🇷", "Spain": "🇪🇸",
-        "Switzerland": "🇨🇭", "Tunisia": "🇹🇳", "United States": "🇺🇸",
+        # ====================================================
+        # AFC
+        # ====================================================
+        "Afghanistan": "🇦🇫",
+        "Australia": "🇦🇺",
+        "Bahrain": "🇧🇭",
+        "Bangladesh": "🇧🇩",
+        "Bhutan": "🇧🇹",
+        "Brunei": "🇧🇳",
+        "Cambodia": "🇰🇭",
+        "China": "🇨🇳",
+        "Chinese Taipei": "🇹🇼",
+        "Guam": "🇬🇺",
+        "Hong Kong": "🇭🇰",
+        "India": "🇮🇳",
+        "Indonesia": "🇮🇩",
+        "Iran": "🇮🇷",
+        "Iraq": "🇮🇶",
+        "Japan": "🇯🇵",
+        "Jordan": "🇯🇴",
+        "Kuwait": "🇰🇼",
+        "Kyrgyzstan": "🇰🇬",
+        "Laos": "🇱🇦",
+        "Lebanon": "🇱🇧",
+        "Macau": "🇲🇴",
+        "Malaysia": "🇲🇾",
+        "Maldives": "🇲🇻",
+        "Mongolia": "🇲🇳",
+        "Myanmar": "🇲🇲",
+        "Nepal": "🇳🇵",
+        "North Korea": "🇰🇵",
+        "Northern Mariana Islands": "🇲🇵",
+        "Oman": "🇴🇲",
+        "Pakistan": "🇵🇰",
+        "Palestine": "🇵🇸",
+        "Philippines": "🇵🇭",
+        "Qatar": "🇶🇦",
+        "Saudi Arabia": "🇸🇦",
+        "Singapore": "🇸🇬",
+        "South Korea": "🇰🇷",
+        "Sri Lanka": "🇱🇰",
+        "Syria": "🇸🇾",
+        "Tajikistan": "🇹🇯",
+        "Thailand": "🇹🇭",
+        "Timor-Leste": "🇹🇱",
+        "Turkmenistan": "🇹🇲",
+        "United Arab Emirates": "🇦🇪",
+        "Uzbekistan": "🇺🇿",
+        "Vietnam": "🇻🇳",
+        "Yemen": "🇾🇪",
+
+        # ====================================================
+        # CAF
+        # ====================================================
+        "Algeria": "🇩🇿",
+        "Angola": "🇦🇴",
+        "Benin": "🇧🇯",
+        "Botswana": "🇧🇼",
+        "Burkina Faso": "🇧🇫",
+        "Burundi": "🇧🇮",
+        "Cameroon": "🇨🇲",
+        "Cape Verde": "🇨🇻",
+        "Central African Republic": "🇨🇫",
+        "Chad": "🇹🇩",
+        "Comoros": "🇰🇲",
+        "Congo": "🇨🇬",
+        "DR Congo": "🇨🇩",
+        "Djibouti": "🇩🇯",
+        "Egypt": "🇪🇬",
+        "Equatorial Guinea": "🇬🇶",
+        "Eritrea": "🇪🇷",
+        "Eswatini": "🇸🇿",
+        "Ethiopia": "🇪🇹",
+        "Gabon": "🇬🇦",
+        "Gambia": "🇬🇲",
+        "Ghana": "🇬🇭",
+        "Guinea": "🇬🇳",
+        "Guinea-Bissau": "🇬🇼",
+        "Ivory Coast": "🇨🇮",
+        "Kenya": "🇰🇪",
+        "Lesotho": "🇱🇸",
+        "Liberia": "🇱🇷",
+        "Libya": "🇱🇾",
+        "Madagascar": "🇲🇬",
+        "Malawi": "🇲🇼",
+        "Mali": "🇲🇱",
+        "Mauritania": "🇲🇷",
+        "Mauritius": "🇲🇺",
+        "Morocco": "🇲🇦",
+        "Mozambique": "🇲🇿",
+        "Namibia": "🇳🇦",
+        "Niger": "🇳🇪",
+        "Nigeria": "🇳🇬",
+        "Rwanda": "🇷🇼",
+        "São Tomé and Príncipe": "🇸🇹",
+        "Senegal": "🇸🇳",
+        "Seychelles": "🇸🇨",
+        "Sierra Leone": "🇸🇱",
+        "Somalia": "🇸🇴",
+        "South Africa": "🇿🇦",
+        "South Sudan": "🇸🇸",
+        "Sudan": "🇸🇩",
+        "Tanzania": "🇹🇿",
+        "Togo": "🇹🇬",
+        "Tunisia": "🇹🇳",
+        "Uganda": "🇺🇬",
+        "Zambia": "🇿🇲",
+        "Zimbabwe": "🇿🇼",
+
+        # ====================================================
+        # CONCACAF
+        # ====================================================
+        "Anguilla": "🇦🇮",
+        "Antigua and Barbuda": "🇦🇬",
+        "Aruba": "🇦🇼",
+        "Bahamas": "🇧🇸",
+        "Barbados": "🇧🇧",
+        "Belize": "🇧🇿",
+        "Bermuda": "🇧🇲",
+        "British Virgin Islands": "🇻🇬",
+        "Canada": "🇨🇦",
+        "Cayman Islands": "🇰🇾",
+        "Costa Rica": "🇨🇷",
+        "Cuba": "🇨🇺",
+        "Curaçao": "🇨🇼",
+        "Dominica": "🇩🇲",
+        "Dominican Republic": "🇩🇴",
+        "El Salvador": "🇸🇻",
+        "Grenada": "🇬🇩",
+        "Guatemala": "🇬🇹",
+        "Guyana": "🇬🇾",
+        "Haiti": "🇭🇹",
+        "Honduras": "🇭🇳",
+        "Jamaica": "🇯🇲",
+        "Mexico": "🇲🇽",
+        "Montserrat": "🇲🇸",
+        "Nicaragua": "🇳🇮",
+        "Panama": "🇵🇦",
+        "Puerto Rico": "🇵🇷",
+        "Saint Kitts and Nevis": "🇰🇳",
+        "Saint Lucia": "🇱🇨",
+        "Saint Vincent and the Grenadines": "🇻🇨",
+        "Suriname": "🇸🇷",
+        "Trinidad and Tobago": "🇹🇹",
+        "Turks and Caicos Islands": "🇹🇨",
+        "United States": "🇺🇸",
+        "U.S. Virgin Islands": "🇻🇮",
+
+        # ====================================================
+        # CONMEBOL
+        # ====================================================
+        "Argentina": "🇦🇷",
+        "Bolivia": "🇧🇴",
+        "Brazil": "🇧🇷",
+        "Chile": "🇨🇱",
+        "Colombia": "🇨🇴",
+        "Ecuador": "🇪🇨",
+        "Paraguay": "🇵🇾",
+        "Peru": "🇵🇪",
         "Uruguay": "🇺🇾",
+        "Venezuela": "🇻🇪",
+
+        # ====================================================
+        # OFC
+        # ====================================================
+        "American Samoa": "🇦🇸",
+        "Cook Islands": "🇨🇰",
+        "Fiji": "🇫🇯",
+        "New Caledonia": "🇳🇨",
+        "New Zealand": "🇳🇿",
+        "Papua New Guinea": "🇵🇬",
+        "Samoa": "🇼🇸",
+        "Solomon Islands": "🇸🇧",
+        "Tahiti": "🇵🇫",
+        "Tonga": "🇹🇴",
+        "Vanuatu": "🇻🇺",
+
+        # ====================================================
+        # UEFA
+        # ====================================================
+        "Albania": "🇦🇱",
+        "Andorra": "🇦🇩",
+        "Armenia": "🇦🇲",
+        "Austria": "🇦🇹",
+        "Azerbaijan": "🇦🇿",
+        "Belarus": "🇧🇾",
+        "Belgium": "🇧🇪",
+        "Bosnia and Herzegovina": "🇧🇦",
+        "Bulgaria": "🇧🇬",
+        "Croatia": "🇭🇷",
+        "Cyprus": "🇨🇾",
+        "Czech Republic": "🇨🇿",
+        "Denmark": "🇩🇰",
+        "England": "🏴",
+        "Estonia": "🇪🇪",
+        "Faroe Islands": "🇫🇴",
+        "Finland": "🇫🇮",
+        "France": "🇫🇷",
+        "Georgia": "🇬🇪",
+        "Germany": "🇩🇪",
+        "Gibraltar": "🇬🇮",
+        "Greece": "🇬🇷",
+        "Hungary": "🇭🇺",
+        "Iceland": "🇮🇸",
+        "Israel": "🇮🇱",
+        "Italy": "🇮🇹",
+        "Kazakhstan": "🇰🇿",
+        "Kosovo": "🇽🇰",
+        "Latvia": "🇱🇻",
+        "Liechtenstein": "🇱🇮",
+        "Lithuania": "🇱🇹",
+        "Luxembourg": "🇱🇺",
+        "Malta": "🇲🇹",
+        "Moldova": "🇲🇩",
+        "Montenegro": "🇲🇪",
+        "Netherlands": "🇳🇱",
+        "North Macedonia": "🇲🇰",
+        "Northern Ireland": "🏴",
+        "Norway": "🇳🇴",
+        "Poland": "🇵🇱",
+        "Portugal": "🇵🇹",
+        "Republic of Ireland": "🇮🇪",
+        "Romania": "🇷🇴",
+        "San Marino": "🇸🇲",
+        "Scotland": "🏴",
+        "Serbia": "🇷🇸",
+        "Slovakia": "🇸🇰",
+        "Slovenia": "🇸🇮",
+        "Spain": "🇪🇸",
+        "Sweden": "🇸🇪",
+        "Switzerland": "🇨🇭",
+        "Turkey": "🇹🇷",
+        "Ukraine": "🇺🇦",
+        "Wales": "🏴",
     }
+
     return flags.get(country, "🌎")
 
+
+# ============================================================
+# SIDEBAR
+# ============================================================
 
 sidebar = html.Div(
     [
         html.Div(
             [
-                html.Div("WORLD CUP", style={
-                    "fontSize": "25px",
-                    "fontWeight": "900",
-                    "letterSpacing": "1px",
-                    "color": WHITE,
-                }),
-                html.Div("2026 GOAL ANALYTICS", style={
-                    "fontSize": "12px",
-                    "fontWeight": "700",
-                    "letterSpacing": "1.4px",
-                    "color": LIGHT_GOLD,
-                }),
+                html.Div(
+                    "WORLD CUP",
+                    style={
+                        "fontSize": "25px",
+                        "fontWeight": "900",
+                        "letterSpacing": "1px",
+                        "color": WHITE,
+                    },
+                ),
+                html.Div(
+                    "2026 GOAL ANALYTICS",
+                    style={
+                        "fontSize": "12px",
+                        "fontWeight": "700",
+                        "letterSpacing": "1.4px",
+                        "color": LIGHT_GOLD,
+                    },
+                ),
             ],
-            style={"marginBottom": "34px"},
+            style={
+                "marginBottom": "34px",
+            },
         ),
 
         dcc.RadioItems(
             id="page-selector",
             options=[
-                {"label": "  Overview", "value": "overview"},
-                {"label": "  Country Profile", "value": "country"},
-                {"label": "  Confederation", "value": "confederation"},
-                {"label": "  Venue Profile", "value": "venue"},
-                {"label": "  Referee Profile", "value": "referee"},
-                {"label": "  Goal Insights", "value": "insights"},
+                {
+                    "label": "  Overview",
+                    "value": "overview",
+                },
+                {
+                    "label": "  Country Profile",
+                    "value": "country",
+                },
+                {
+                    "label": "  Confederation",
+                    "value": "confederation",
+                },
+                {
+                    "label": "  Venue Profile",
+                    "value": "venue",
+                },
+                {
+                    "label": "  Referee Profile",
+                    "value": "referee",
+                },
+                {
+                    "label": "  Goal Insights",
+                    "value": "insights",
+                },
             ],
             value="overview",
             labelStyle={
@@ -141,7 +428,9 @@ sidebar = html.Div(
                 "cursor": "pointer",
                 "borderRadius": "8px",
             },
-            inputStyle={"marginRight": "9px"},
+            inputStyle={
+                "marginRight": "9px",
+            },
             style={
                 "color": WHITE,
                 "fontSize": "15px",
@@ -167,8 +456,11 @@ sidebar = html.Div(
         "bottom": 0,
         "width": "235px",
         "padding": "28px 22px",
-        "background": f"linear-gradient(180deg, {NAVY} 0%, {DARK_BLUE} 100%)",
+        "background": (
+            f"linear-gradient(180deg, "
+            f"{NAVY} 0%, "
+            f"{DARK_BLUE} 100%)"
+        ),
         "zIndex": 10,
     },
 )
-
