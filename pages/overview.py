@@ -2,7 +2,7 @@ import pandas as pd
 from dash import dcc, html, Input, Output
 import plotly.express as px
 
-from data import goal_events, labels
+from data import goal_events, labels, fixtures
 from theme import *
 from components import card, graph_card, format_fig
 
@@ -46,18 +46,22 @@ overview_layout = html.Div(
                     "Total Goals",
                     value_id="kpi-total-goals",
                 ),
+
                 card(
-                    "Matches Represented",
-                    value_id="kpi-matches",
+                    "Total Fixtures",
+                    value_id="kpi-total-fixtures",
                 ),
+
                 card(
                     "Unique Scorers",
                     value_id="kpi-scorers",
                 ),
+
                 card(
                     "Average Scorer Age",
                     value_id="kpi-age",
                 ),
+
                 card(
                     "Goals after 75+ minute",
                     value_id="kpi-late",
@@ -86,6 +90,7 @@ overview_layout = html.Div(
                                 "color": NAVY,
                             },
                         ),
+
                         html.Div(
                             "Move the handles to filter every overview visualization by scoring minute.",
                             style={
@@ -94,6 +99,7 @@ overview_layout = html.Div(
                                 "marginTop": "4px",
                             },
                         ),
+
                         dcc.RangeSlider(
                             id="minute-slider",
                             min=0,
@@ -140,6 +146,7 @@ overview_layout = html.Div(
                     "Goals by Confederation",
                     "confed-bubble",
                 ),
+
                 graph_card(
                     "Share of Tournament Goals",
                     "goal-pie",
@@ -163,6 +170,7 @@ overview_layout = html.Div(
                     "When Are Goals Scored?",
                     "goal-timeline",
                 ),
+
                 graph_card(
                     "Goal Minute Distribution",
                     "goal-box",
@@ -186,6 +194,7 @@ overview_layout = html.Div(
                     "Scoring Contribution by Player Age",
                     "age-scatter",
                 ),
+
                 graph_card(
                     "Goals by Position Group",
                     "position-bar",
@@ -205,7 +214,7 @@ def register_callbacks(app):
 
     @app.callback(
         Output("kpi-total-goals", "children"),
-        Output("kpi-matches", "children"),
+        Output("kpi-total-fixtures", "children"),
         Output("kpi-scorers", "children"),
         Output("kpi-age", "children"),
         Output("kpi-late", "children"),
@@ -235,7 +244,7 @@ def register_callbacks(app):
 
         total_goals = len(dff)
 
-        matches = dff["Match ID"].nunique()
+        total_fixtures = len(fixtures)
 
         scorers = (
             dff["Player First Name"]
@@ -385,6 +394,7 @@ def register_callbacks(app):
 
         fig_timeline.update_yaxes(
             title="Goals",
+            dtick=1,
         )
 
         fig_timeline.update_xaxes(
@@ -462,6 +472,10 @@ def register_callbacks(app):
             fig_age
         )
 
+        fig_age.update_yaxes(
+            dtick=1,
+        )
+
         # ========================================================
         # POSITION
         # ========================================================
@@ -496,13 +510,17 @@ def register_callbacks(app):
             fig_pos
         )
 
+        fig_pos.update_xaxes(
+            dtick=1,
+        )
+
         # ========================================================
         # RETURN
         # ========================================================
 
         return (
             f"{total_goals:,}",
-            f"{matches:,}",
+            f"{total_fixtures:,}",
             f"{scorers:,}",
             (
                 f"{avg_age:.1f}"

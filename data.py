@@ -59,6 +59,10 @@ def clean_column_name(col):
     )
 
 
+# ============================================================
+# LOAD GOALS
+# ============================================================
+
 goals = pd.read_excel(
     GOALS_FILE,
     sheet_name="All Goals",
@@ -69,6 +73,25 @@ goals.columns = [
     for c in goals.columns
 ]
 
+
+# ============================================================
+# LOAD FIXTURES
+# ============================================================
+
+fixtures = pd.read_excel(
+    GOALS_FILE,
+    sheet_name="All Fixtures",
+)
+
+fixtures.columns = [
+    clean_column_name(c)
+    for c in fixtures.columns
+]
+
+
+# ============================================================
+# LOAD MANAGERS
+# ============================================================
 
 managers = pd.read_excel(
     MANAGERS_FILE,
@@ -106,7 +129,7 @@ managers = managers.rename(
 
 
 # ============================================================
-# STRIP WHITESPACE FROM TEXT COLUMNS
+# STRIP WHITESPACE FROM GOAL TEXT COLUMNS
 # ============================================================
 
 for col in goals.select_dtypes(
@@ -126,6 +149,32 @@ for col in goals.select_dtypes(
         }
     )
 
+
+# ============================================================
+# STRIP WHITESPACE FROM FIXTURE TEXT COLUMNS
+# ============================================================
+
+for col in fixtures.select_dtypes(
+    include=["object", "string"]
+).columns:
+
+    fixtures[col] = (
+        fixtures[col]
+        .astype("string")
+        .str.strip()
+    )
+
+    fixtures[col] = fixtures[col].replace(
+        {
+            "nan": pd.NA,
+            "None": pd.NA,
+        }
+    )
+
+
+# ============================================================
+# STRIP WHITESPACE FROM MANAGER TEXT COLUMNS
+# ============================================================
 
 for col in managers.select_dtypes(
     include=["object", "string"]
