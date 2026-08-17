@@ -19,10 +19,13 @@ def card(title, value_id=None, value=None):
                 title,
                 style={
                     "fontSize": "12px",
-                    "fontWeight": "700",
-                    "color": MUTED,
-                    "textTransform": "uppercase",
-                    "letterSpacing": "0.8px",
+        "fontWeight": "700",
+        "color": MUTED,
+        "textTransform": "uppercase",
+        "letterSpacing": "0.8px",
+        "minHeight": "38px",
+        "display": "flex",
+        "alignItems": "flex-start",
                 },
             ),
             html.Div(
