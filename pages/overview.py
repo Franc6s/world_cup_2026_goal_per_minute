@@ -2,7 +2,7 @@ import pandas as pd
 from dash import dcc, html, Input, Output
 import plotly.express as px
 
-from data import goal_events, labels, fixtures
+from data import goal_events, labels, fixtures, goalless_fixtures
 from theme import *
 from components import card, graph_card, format_fig
 
@@ -53,6 +53,11 @@ overview_layout = html.Div(
                 ),
 
                 card(
+                    "Goalless Fixtures",
+                    value_id="kpi-goalless-fixtures",
+                ),
+
+                card(
                     "Unique Scorers",
                     value_id="kpi-scorers",
                 ),
@@ -69,7 +74,7 @@ overview_layout = html.Div(
             ],
             style={
                 "display": "grid",
-                "gridTemplateColumns": "repeat(5, 1fr)",
+                "gridTemplateColumns": "repeat(6, 1fr)",
                 "gap": "14px",
                 "marginBottom": "20px",
             },
@@ -204,6 +209,34 @@ overview_layout = html.Div(
                 "display": "grid",
                 "gridTemplateColumns": "1fr 1fr",
                 "gap": "18px",
+                "marginBottom": "18px",
+            },
+        ),
+
+        # ====================================================
+        # GOALLESS FIXTURES
+        # ====================================================
+
+        html.Div(
+            [
+                html.H3(
+                    "Goalless Fixtures",
+                    style={
+                        "color": NAVY,
+                        "marginTop": 0,
+                        "marginBottom": "14px",
+                    },
+                ),
+
+                html.Div(
+                    id="goalless-fixtures-table",
+                ),
+            ],
+            style={
+                "backgroundColor": WHITE,
+                "padding": "18px",
+                "border": f"1px solid {BORDER}",
+                "borderRadius": "14px",
             },
         ),
     ]
@@ -215,6 +248,7 @@ def register_callbacks(app):
     @app.callback(
         Output("kpi-total-goals", "children"),
         Output("kpi-total-fixtures", "children"),
+        Output("kpi-goalless-fixtures", "children"),
         Output("kpi-scorers", "children"),
         Output("kpi-age", "children"),
         Output("kpi-late", "children"),
@@ -224,6 +258,7 @@ def register_callbacks(app):
         Output("goal-box", "figure"),
         Output("age-scatter", "figure"),
         Output("position-bar", "figure"),
+        Output("goalless-fixtures-table", "children"),
         Input("minute-slider", "value"),
     )
     def update_overview(minute_range):
@@ -245,6 +280,8 @@ def register_callbacks(app):
         total_goals = len(dff)
 
         total_fixtures = len(fixtures)
+
+        goalless_count = len(goalless_fixtures)
 
         scorers = (
             dff["Player First Name"]
@@ -394,7 +431,6 @@ def register_callbacks(app):
 
         fig_timeline.update_yaxes(
             title="Goals",
-            dtick=1,
         )
 
         fig_timeline.update_xaxes(
@@ -511,7 +547,82 @@ def register_callbacks(app):
         )
 
         fig_pos.update_xaxes(
-            dtick=1,
+            range=[
+                0,
+                pos["Goals"].max() * 1.12,
+            ]
+        )
+
+        # ========================================================
+        # GOALLESS FIXTURES TABLE
+        # ========================================================
+
+        goalless_rows = []
+
+        for _, row in goalless_fixtures.iterrows():
+
+            goalless_rows.append(
+                html.Tr(
+                    [
+                        html.Td(
+                            row["Match ID"],
+                            style={
+                                "padding": "10px 12px",
+                                "borderBottom": f"1px solid {BORDER}",
+                                "fontWeight": "600",
+                                "color": NAVY,
+                            },
+                        ),
+
+                        html.Td(
+                            row["Fixtures"],
+                            style={
+                                "padding": "10px 12px",
+                                "borderBottom": f"1px solid {BORDER}",
+                                "color": TEXT,
+                            },
+                        ),
+                    ]
+                )
+            )
+
+        goalless_table = html.Table(
+            [
+                html.Thead(
+                    html.Tr(
+                        [
+                            html.Th(
+                                "Match ID",
+                                style={
+                                    "padding": "10px 12px",
+                                    "textAlign": "left",
+                                    "color": NAVY,
+                                    "borderBottom": f"2px solid {BORDER}",
+                                },
+                            ),
+
+                            html.Th(
+                                "Fixture",
+                                style={
+                                    "padding": "10px 12px",
+                                    "textAlign": "left",
+                                    "color": NAVY,
+                                    "borderBottom": f"2px solid {BORDER}",
+                                },
+                            ),
+                        ]
+                    )
+                ),
+
+                html.Tbody(
+                    goalless_rows
+                ),
+            ],
+            style={
+                "width": "100%",
+                "borderCollapse": "collapse",
+                "fontSize": "14px",
+            },
         )
 
         # ========================================================
@@ -521,6 +632,7 @@ def register_callbacks(app):
         return (
             f"{total_goals:,}",
             f"{total_fixtures:,}",
+            f"{goalless_count:,}",
             f"{scorers:,}",
             (
                 f"{avg_age:.1f}"
@@ -534,4 +646,5 @@ def register_callbacks(app):
             fig_box,
             fig_age,
             fig_pos,
+            goalless_table,
         )

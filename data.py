@@ -47,7 +47,7 @@ CONFED_COLORS = {
 
 
 # ============================================================
-# LOAD + CLEAN DATA
+# CLEAN COLUMN NAMES
 # ============================================================
 
 def clean_column_name(col):
@@ -105,7 +105,7 @@ managers.columns = [
 
 
 # ============================================================
-# NORMALIZE COLUMN NAMES
+# NORMALIZE GOAL COLUMN NAMES
 # ============================================================
 
 rename_goals = {
@@ -118,6 +118,24 @@ goals = goals.rename(
     columns=rename_goals
 )
 
+
+# ============================================================
+# NORMALIZE FIXTURE COLUMN NAMES
+# ============================================================
+
+rename_fixtures = {
+    "Match_ID": "Match ID",
+    "Goaless Fixture": "Goalless Fixture",
+}
+
+fixtures = fixtures.rename(
+    columns=rename_fixtures
+)
+
+
+# ============================================================
+# NORMALIZE MANAGER COLUMN NAMES
+# ============================================================
 
 rename_managers = {
     "Coach": "Coach",
@@ -239,6 +257,23 @@ goals = goals[
 # ============================================================
 
 goal_events = goals.copy()
+
+
+# ============================================================
+# FIXTURE DATA
+# ============================================================
+# "All Fixtures" contains all 104 tournament fixtures.
+# Goalless fixtures are identified by "Goalless Fixture" = Yes.
+# ============================================================
+
+goalless_fixtures = fixtures[
+    fixtures["Goalless Fixture"]
+    .fillna("No")
+    .astype(str)
+    .str.strip()
+    .str.lower()
+    .eq("yes")
+].copy()
 
 
 # ============================================================
