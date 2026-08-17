@@ -14,7 +14,7 @@ overview_layout = html.Div(
                 html.Div(
                     [
                         html.H1(
-                            "Tournament Overview",
+                            "Tournament Goals Overview",
                             style={
                                 "margin": 0,
                                 "color": NAVY,
@@ -59,7 +59,7 @@ overview_layout = html.Div(
                     value_id="kpi-age",
                 ),
                 card(
-                    "Goals in the Last Quarter",
+                    "Goals after 75+ minute",
                     value_id="kpi-late",
                 ),
             ],

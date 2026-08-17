@@ -25,7 +25,7 @@ country_layout = html.Div(
         ),
 
         html.P(
-            "Team scoring profile, goal scorers, coach information, fixtures represented in the goal dataset, and scoring timing.",
+            "Team profiles, Goal scorers, Coach information, Fixtures and Timing.",
             style={
                 "color": MUTED,
             },
@@ -62,12 +62,12 @@ country_layout = html.Div(
         html.Div(
             [
                 card(
-                    "Goals Scored",
+                    "Total Goals",
                     value_id="country-goals",
                 ),
 
                 card(
-                    "Matches With Goals",
+                    "Matches Scored",
                     value_id="country-matches",
                 ),
 
@@ -82,7 +82,7 @@ country_layout = html.Div(
                 ),
 
                 card(
-                    "Player With Most Goals",
+                    "Top Scorer",
                     value_id="country-top-scorer",
                 ),
             ],
@@ -149,7 +149,7 @@ country_layout = html.Div(
         html.Div(
             [
                 html.H3(
-                    "Fixtures Represented in Goal Dataset",
+                    "Fixtures",
                     style={
                         "color": NAVY,
                     },
@@ -312,56 +312,63 @@ def register_callbacks(app):
                 name="Goals"
             )
             .sort_values(
-                [
-                    "Goals",
-                    "Player Name",
-                ],
-                ascending=[
-                    False,
-                    True,
-                ],
+                "Goals",
+                ascending=False,
             )
         )
 
         if not top_scorer_df.empty:
 
-            top_scorer_row = top_scorer_df.iloc[0]
+            # Highest number of goals scored by one player
+            max_goals = top_scorer_df["Goals"].max()
 
-            first_name = (
-                ""
-                if pd.isna(
-                    top_scorer_row["Player First Name"]
+            # Find every player who has that number of goals
+            tied_top_scorers = top_scorer_df[
+                top_scorer_df["Goals"] == max_goals
+            ]
+
+            # If more than one player is tied for first place
+            if len(tied_top_scorers) > 1:
+                top_scorer_display = "N/A"
+
+            else:
+                top_scorer_row = tied_top_scorers.iloc[0]
+
+                first_name = (
+                    ""
+                    if pd.isna(
+                        top_scorer_row["Player First Name"]
+                    )
+                    else str(
+                        top_scorer_row["Player First Name"]
+                    )
                 )
-                else str(
-                    top_scorer_row["Player First Name"]
+
+                last_name = (
+                    ""
+                    if pd.isna(
+                        top_scorer_row["Player Name"]
+                    )
+                    else str(
+                        top_scorer_row["Player Name"]
+                    )
                 )
-            )
 
-            last_name = (
-                ""
-                if pd.isna(
-                    top_scorer_row["Player Name"]
+                top_scorer_name = (
+                    f"{first_name} {last_name}"
+                ).strip()
+
+                top_scorer_goals = int(
+                    top_scorer_row["Goals"]
                 )
-                else str(
-                    top_scorer_row["Player Name"]
+
+                top_scorer_display = (
+                    f"{top_scorer_name} — "
+                    f"{top_scorer_goals} Goals"
                 )
-            )
-
-            top_scorer_name = (
-                f"{first_name} {last_name}"
-            ).strip()
-
-            top_scorer_goals = int(
-                top_scorer_row["Goals"]
-            )
-
-            top_scorer_display = (
-                f"{top_scorer_name} — "
-                f"{top_scorer_goals} Goals"
-            )
 
         else:
-            top_scorer_display = "—"
+            top_scorer_display = "N/A"
 
         # ========================================================
         # TOP GOAL SCORERS

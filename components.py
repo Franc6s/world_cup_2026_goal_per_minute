@@ -455,7 +455,7 @@ style={
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "width": "265px",
+    "width": "245px",
     "padding": "28px 22px",
     "boxSizing": "border-box",
     "background": (
