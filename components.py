@@ -443,7 +443,7 @@ dcc.RadioItems(
 ),
 
         html.Div(
-            "Vizual Optima",
+            "Francis Mangala",
             style={
                 "position": "absolute",
                 "bottom": "24px",
