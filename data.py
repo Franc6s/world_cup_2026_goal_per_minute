@@ -183,31 +183,13 @@ goals = goals[
 
 
 # ============================================================
-# PENALTY SHOOTOUT FLAG
+# GOAL EVENTS
+# ============================================================
+# Every row with a valid Goal_ID is treated as a goal event.
+# Do not exclude rows based on the "Penalty Shoot-Out" column.
 # ============================================================
 
-goals["Is Shootout"] = (
-    goals["Penalty Shoot-Out"]
-    .fillna("No")
-    .astype(str)
-    .str.lower()
-    .isin(
-        [
-            "yes",
-            "y",
-            "true",
-            "1",
-        ]
-    )
-)
-
-# ============================================================
-# REGULATION + EXTRA-TIME GOALS
-# ============================================================
-
-goal_events = goals[
-    ~goals["Is Shootout"]
-].copy()
+goal_events = goals.copy()
 
 
 # ============================================================
