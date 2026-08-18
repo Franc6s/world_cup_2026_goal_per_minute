@@ -25,7 +25,7 @@ country_layout = html.Div(
         ),
 
         html.P(
-            "Team profiles, Goal scorers, Coach information, Fixtures and Timing.",
+            "Team scoring profile, goal scorers, coach information, fixtures represented in the goal dataset, and scoring timing.",
             style={
                 "color": MUTED,
             },
@@ -62,12 +62,17 @@ country_layout = html.Div(
         html.Div(
             [
                 card(
-                    "Total Goals",
+                    "Goals Scored",
                     value_id="country-goals",
                 ),
 
                 card(
-                    "Matches Scored",
+                    "Own Goals",
+                    value_id="country-own-goals",
+                ),
+
+                card(
+                    "Matches With Goals",
                     value_id="country-matches",
                 ),
 
@@ -82,21 +87,17 @@ country_layout = html.Div(
                 ),
 
                 card(
-                    "Top Scorer",
+                    "Player With Most Goals",
                     value_id="country-top-scorer",
                 ),
             ],
             style={
                 "display": "grid",
-                "gridTemplateColumns": "repeat(5, 1fr)",
+                "gridTemplateColumns": "repeat(3, 1fr)",
                 "gap": "14px",
                 "marginBottom": "18px",
             },
         ),
-
-        # ====================================================
-        # SCORERS + MATCH PERIOD
-        # ====================================================
 
         html.Div(
             [
@@ -118,10 +119,6 @@ country_layout = html.Div(
             },
         ),
 
-        # ====================================================
-        # TIMELINE + POSITION
-        # ====================================================
-
         html.Div(
             [
                 graph_card(
@@ -142,14 +139,10 @@ country_layout = html.Div(
             },
         ),
 
-        # ====================================================
-        # FIXTURES
-        # ====================================================
-
         html.Div(
             [
                 html.H3(
-                    "Fixtures",
+                    "Fixtures Represented in Goal Dataset",
                     style={
                         "color": NAVY,
                     },
@@ -175,6 +168,7 @@ def register_callbacks(app):
     @app.callback(
         Output("country-header", "children"),
         Output("country-goals", "children"),
+        Output("country-own-goals", "children"),
         Output("country-matches", "children"),
         Output("country-scorers", "children"),
         Output("country-avg-minute", "children"),
@@ -191,10 +185,6 @@ def register_callbacks(app):
         dff = goal_events[
             goal_events["Player Country"] == country
         ].copy()
-
-        # ========================================================
-        # COUNTRY INFORMATION
-        # ========================================================
 
         coach = (
             dff["Coach"].dropna().iloc[0]
@@ -224,10 +214,6 @@ def register_callbacks(app):
         )
 
         groups = groups if groups else "—"
-
-        # ========================================================
-        # COUNTRY HEADER
-        # ========================================================
 
         header = html.Div(
             [
@@ -278,7 +264,18 @@ def register_callbacks(app):
         # KPI METRICS
         # ========================================================
 
-        n_goals = len(dff)
+        own_goal_mask = (
+            dff["Own Goal"]
+            .fillna("No")
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .eq("yes")
+        )
+
+        own_goals = int(own_goal_mask.sum())
+
+        n_goals = len(dff) - own_goals
 
         n_matches = dff["Match ID"].nunique()
 
@@ -319,15 +316,12 @@ def register_callbacks(app):
 
         if not top_scorer_df.empty:
 
-            # Highest number of goals scored by one player
             max_goals = top_scorer_df["Goals"].max()
 
-            # Find every player who has that number of goals
             tied_top_scorers = top_scorer_df[
                 top_scorer_df["Goals"] == max_goals
             ]
 
-            # If more than one player is tied for first place
             if len(tied_top_scorers) > 1:
                 top_scorer_display = "N/A"
 
@@ -363,8 +357,7 @@ def register_callbacks(app):
                 )
 
                 top_scorer_display = (
-                    f"{top_scorer_name} — "
-                    f"{top_scorer_goals} Goals"
+                    f"{top_scorer_name}"
                 )
 
         else:
@@ -383,9 +376,7 @@ def register_callbacks(app):
                 dropna=False,
             )
             .size()
-            .reset_index(
-                name="Goals"
-            )
+            .reset_index(name="Goals")
             .sort_values(
                 "Goals",
                 ascending=True,
@@ -410,9 +401,7 @@ def register_callbacks(app):
             marker_color=BLUE,
         )
 
-        fig_scorers = format_fig(
-            fig_scorers
-        )
+        fig_scorers = format_fig(fig_scorers)
 
         # ========================================================
         # GOALS BY MATCH PERIOD
@@ -444,9 +433,7 @@ def register_callbacks(app):
             marker_color=GOLD,
         )
 
-        fig_period = format_fig(
-            fig_period
-        )
+        fig_period = format_fig(fig_period)
 
         # ========================================================
         # GOAL TIMELINE
@@ -483,9 +470,7 @@ def register_callbacks(app):
             dtick=15,
         )
 
-        fig_timeline = format_fig(
-            fig_timeline
-        )
+        fig_timeline = format_fig(fig_timeline)
 
         # ========================================================
         # GOALS BY POSITION
@@ -565,24 +550,12 @@ def register_callbacks(app):
             rows.append(
                 html.Tr(
                     [
-                        html.Td(
-                            date_text
-                        ),
-                        html.Td(
-                            row["Fixture"]
-                        ),
-                        html.Td(
-                            row["Fixture Format"]
-                        ),
-                        html.Td(
-                            row["Group"]
-                        ),
-                        html.Td(
-                            row["Stadium Name"]
-                        ),
-                        html.Td(
-                            row["City Venue"]
-                        ),
+                        html.Td(date_text),
+                        html.Td(row["Fixture"]),
+                        html.Td(row["Fixture Format"]),
+                        html.Td(row["Group"]),
+                        html.Td(row["Stadium Name"]),
+                        html.Td(row["City Venue"]),
                     ]
                 )
             )
@@ -602,9 +575,7 @@ def register_callbacks(app):
                     )
                 ),
 
-                html.Tbody(
-                    rows
-                ),
+                html.Tbody(rows),
             ],
             style={
                 "width": "100%",
@@ -612,13 +583,10 @@ def register_callbacks(app):
             },
         )
 
-        # ========================================================
-        # RETURN
-        # ========================================================
-
         return (
             header,
             f"{n_goals:,}",
+            f"{own_goals:,}",
             f"{n_matches:,}",
             f"{n_scorers:,}",
             (

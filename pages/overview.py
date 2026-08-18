@@ -48,6 +48,11 @@ overview_layout = html.Div(
                 ),
 
                 card(
+                    "Own Goals",
+                    value_id="kpi-own-goals",
+                ),
+
+                card(
                     "Total Fixtures",
                     value_id="kpi-total-fixtures",
                 ),
@@ -74,7 +79,7 @@ overview_layout = html.Div(
             ],
             style={
                 "display": "grid",
-                "gridTemplateColumns": "repeat(6, 1fr)",
+                "gridTemplateColumns": "repeat(4, 1fr)",
                 "gap": "14px",
                 "marginBottom": "20px",
             },
@@ -247,6 +252,7 @@ def register_callbacks(app):
 
     @app.callback(
         Output("kpi-total-goals", "children"),
+        Output("kpi-own-goals", "children"),
         Output("kpi-total-fixtures", "children"),
         Output("kpi-goalless-fixtures", "children"),
         Output("kpi-scorers", "children"),
@@ -279,6 +285,17 @@ def register_callbacks(app):
 
         total_goals = len(dff)
 
+        own_goal_mask = (
+            dff["Own Goal"]
+            .fillna("No")
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .eq("yes")
+        )
+
+        own_goals = int(own_goal_mask.sum())
+
         total_fixtures = len(fixtures)
 
         goalless_count = len(goalless_fixtures)
@@ -310,22 +327,10 @@ def register_callbacks(app):
                 dropna=False,
             )
             .agg(
-                Goals=(
-                    "Goal_ID",
-                    "count",
-                ),
-                Scorers=(
-                    "Player Name",
-                    "nunique",
-                ),
-                Teams=(
-                    "Player Country",
-                    "nunique",
-                ),
-                Avg_Age=(
-                    "Player Age",
-                    "mean",
-                ),
+                Goals=("Goal_ID", "count"),
+                Scorers=("Player Name", "nunique"),
+                Teams=("Player Country", "nunique"),
+                Avg_Age=("Player Age", "mean"),
             )
             .reset_index()
         )
@@ -347,9 +352,7 @@ def register_callbacks(app):
             size_max=62,
         )
 
-        fig_conf = format_fig(
-            fig_conf
-        )
+        fig_conf = format_fig(fig_conf)
 
         fig_conf.update_traces(
             marker=dict(
@@ -375,9 +378,7 @@ def register_callbacks(app):
 
         fig_pie.update_layout(
             paper_bgcolor=WHITE,
-            font=dict(
-                color=TEXT,
-            ),
+            font=dict(color=TEXT),
             margin=dict(
                 l=20,
                 r=20,
@@ -425,9 +426,7 @@ def register_callbacks(app):
             textposition="outside",
         )
 
-        fig_timeline = format_fig(
-            fig_timeline
-        )
+        fig_timeline = format_fig(fig_timeline)
 
         fig_timeline.update_yaxes(
             title="Goals",
@@ -456,9 +455,7 @@ def register_callbacks(app):
             ],
         )
 
-        fig_box = format_fig(
-            fig_box
-        )
+        fig_box = format_fig(fig_box)
 
         fig_box.update_layout(
             showlegend=False
@@ -504,9 +501,7 @@ def register_callbacks(app):
             size_max=35,
         )
 
-        fig_age = format_fig(
-            fig_age
-        )
+        fig_age = format_fig(fig_age)
 
         fig_age.update_yaxes(
             dtick=1,
@@ -528,9 +523,7 @@ def register_callbacks(app):
         ]
 
         fig_pos = px.bar(
-            pos.sort_values(
-                "Goals"
-            ),
+            pos.sort_values("Goals"),
             x="Goals",
             y="Position Group",
             orientation="h",
@@ -542,9 +535,7 @@ def register_callbacks(app):
             textposition="outside",
         )
 
-        fig_pos = format_fig(
-            fig_pos
-        )
+        fig_pos = format_fig(fig_pos)
 
         fig_pos.update_xaxes(
             range=[
@@ -614,9 +605,7 @@ def register_callbacks(app):
                     )
                 ),
 
-                html.Tbody(
-                    goalless_rows
-                ),
+                html.Tbody(goalless_rows),
             ],
             style={
                 "width": "100%",
@@ -631,6 +620,7 @@ def register_callbacks(app):
 
         return (
             f"{total_goals:,}",
+            f"{own_goals:,}",
             f"{total_fixtures:,}",
             f"{goalless_count:,}",
             f"{scorers:,}",
