@@ -357,8 +357,8 @@ def register_callbacks(app):
             )
 
             top_scorer_display = (
-                f"{top_scorer_name} ()"
-                f"{top_scorer_goals} Goals"
+                f"{top_scorer_name} "
+                f"({top_scorer_goals} Goals)"
             )
 
         else:
