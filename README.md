@@ -1,5 +1,6 @@
 # World Cup 2026 — Goal per minute
 
+The app can be found on Plotly Cloud : [World Cup Goal Per Minute](https://wc2026analytics.plotly.app)
 ## Project Overview
 
 The **World Cup 2026 — Goal per minute** is a structured data project developed to capture, organize, and analyze goal-level information from the **2026 FIFA World Cup**.
